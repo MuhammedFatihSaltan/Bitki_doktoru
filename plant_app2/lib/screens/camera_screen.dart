@@ -29,25 +29,13 @@ class _CameraScreenState extends State<CameraScreen> {
             builder: (context) => LoadingScreen(imagePath: image.path),
           ),
         );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Resim seçilmedi'),
-            backgroundColor: Colors.orange,
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Kamera açılamadı. Lütfen izinleri kontrol edin.'),
             backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Tamam',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
           ),
         );
       }
@@ -57,82 +45,129 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              color: Colors.black87,
-              child: const Center(
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 100,
-                  color: Colors.white24,
-                ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(24),
               ),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Text(
-                        'Kamera',
+              child: Column(
+                children: [
+                  const Text(
+                    'Bitki Teşhisi',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Bitkinin fotoğrafını çekin veya yükleyin',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.eco,
+                      size: 100,
+                      color: Color(0xFF00C853),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _pickImage(ImageSource.camera),
+                      icon: const Icon(Icons.camera_alt),
+                      label: const Text(
+                        'Fotoğraf Çek',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.photo_library, size: 32),
-                        color: Colors.white,
-                        onPressed: () => _pickImage(ImageSource.gallery),
-                      ),
-                      GestureDetector(
-                        onTap: () => _pickImage(ImageSource.camera),
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                          ),
-                          child: Container(
-                            margin: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00C853),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 0,
                       ),
-                      const SizedBox(width: 32),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Bitkinin fotoğrafını çekin veya yükleyin',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'En doğru sonuçlar için bitkinizin hastalıklı bölümünü net ve iyi aydınlatılmış bir şekilde fotoğraflayın.',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                icon: const Icon(Icons.photo_library),
+                label: const Text(
+                  'Galeriden Seç',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF00C853),
+                  side: const BorderSide(color: Color(0xFF00C853), width: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

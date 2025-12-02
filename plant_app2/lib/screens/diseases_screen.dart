@@ -20,91 +20,99 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Bitki Hastalıkları',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Hastalık veya bitki adı ara...',
-                hintStyle: const TextStyle(color: Colors.black26),
-                prefixIcon: const Icon(Icons.search, color: Colors.black38),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(categories[index]),
-                    selected: selectedCategory == index,
-                    onSelected: (selected) {
-                      setState(() {
-                        selectedCategory = index;
-                      });
-                    },
-                    selectedColor: const Color(0xFF00C853),
-                    backgroundColor: const Color(0xFFF5F5F5),
-                    labelStyle: TextStyle(
-                      color: selectedCategory == index
-                          ? Colors.white
-                          : Colors.black54,
-                      fontWeight: FontWeight.w600,
+      body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Bitki Hastalıkları',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.75,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Hastalık veya bitki adı ara...',
+                        hintStyle: const TextStyle(color: Colors.black26),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.black38),
+                        filled: true,
+                        fillColor: const Color(0xFFF5F5F5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 50,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: ChoiceChip(
+                            label: Text(categories[index]),
+                            selected: selectedCategory == index,
+                            onSelected: (selected) {
+                              setState(() {
+                                selectedCategory = index;
+                              });
+                            },
+                            selectedColor: const Color(0xFF00C853),
+                            backgroundColor: const Color(0xFFF5F5F5),
+                            labelStyle: TextStyle(
+                              color: selectedCategory == index
+                                  ? Colors.white
+                                  : Colors.black54,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                return _buildDiseaseCard(
-                  'Domates Mildiyösü',
-                  'Mantar / Domates',
-                );
-              },
             ),
-          ),
-        ],
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.75,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return _buildDiseaseCard(
+                      'Domates Mildiyösü',
+                      'Mantar / Domates',
+                    );
+                  },
+                  childCount: 6,
+                ),
+              ),
+            ),
+          ],
       ),
     );
   }

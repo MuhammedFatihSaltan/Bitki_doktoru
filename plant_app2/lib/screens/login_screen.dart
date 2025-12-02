@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+import '../services/auth_service.dart';
+import '../services/storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,13 +14,89 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
+  final _storageService = StorageService();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    final rememberMe = await _storageService.getRememberMe();
+    if (rememberMe) {
+      final email = await _storageService.getSavedEmail();
+      if (email != null) {
+        setState(() {
+          _emailController.text = email;
+          _rememberMe = true;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showError('Lütfen tüm alanları doldurun');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // Beni hatırla durumunu kaydet
+      await _storageService.setRememberMe(_rememberMe, _emailController.text.trim());
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Giriş başarılı! Hoş geldiniz.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -133,16 +211,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (value) {
+                      setState(() {
+                        _rememberMe = value ?? false;
+                      });
+                    },
+                    activeColor: const Color(0xFF00C853),
+                  ),
+                  const Text(
+                    'Beni Hatırla',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
                     ),
-                  );
-                },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _signIn,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00C853),
                   foregroundColor: Colors.white,
@@ -152,13 +244,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Giriş Yap',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Giriş Yap',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
               const SizedBox(height: 16),
               Row(

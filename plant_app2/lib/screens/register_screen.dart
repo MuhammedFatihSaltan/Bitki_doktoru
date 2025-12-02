@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -8,18 +11,105 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
+  final _firestoreService = FirestoreService();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _signUp() async {
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      _showError('Lütfen tüm alanları doldurun');
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showError('Şifreler eşleşmiyor');
+      return;
+    }
+
+    if (_passwordController.text.length < 6) {
+      _showError('Şifre en az 6 karakter olmalı');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      print('📝 Kayıt işlemi başlıyor...');
+      
+      // Firebase Auth'a kayıt ol
+      final userCredential = await _authService.signUpWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      print('✅ Firebase Auth başarılı! UID: ${userCredential?.user?.uid}');
+
+      // Firestore'a profil oluştur
+      if (userCredential != null && userCredential.user != null) {
+        print('🔄 Firestore\'a yazılıyor...');
+        
+        await _firestoreService.createUserProfile(
+          uid: userCredential.user!.uid,
+          email: _emailController.text.trim(),
+          fullName: _nameController.text.trim(),
+        );
+
+        print('✅ Tüm işlemler tamamlandı!');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kayıt başarılı! Hoş geldiniz.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          await Future.delayed(const Duration(seconds: 1));
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Hata: $e');
+      if (mounted) {
+        _showError(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -78,6 +168,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
+              const Text(
+                'Kullanıcı Adı',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _nameController,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  hintText: 'Kullanıcı adınızı girin',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'E-posta',
                 style: TextStyle(
@@ -189,9 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () {
-                  // TODO: Kayıt işlemi
-                },
+                onPressed: _isLoading ? null : _signUp,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00C853),
                   foregroundColor: Colors.white,

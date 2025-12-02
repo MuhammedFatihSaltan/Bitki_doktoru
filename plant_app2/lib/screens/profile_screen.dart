@@ -1,8 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
+import '../services/firestore_service.dart';
+import 'settings/account_settings_screen.dart';
+import 'settings/app_settings_screen.dart';
+import 'settings/help_support_screen.dart';
+import 'settings/about_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _firestoreService = FirestoreService();
+  String _userName = 'Kullanıcı';
+  String _userEmail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userProfile = await _firestoreService.getUserProfile(user.uid);
+        if (mounted && userProfile != null) {
+          setState(() {
+            _userName = userProfile.fullName;
+            _userEmail = userProfile.email;
+          });
+        } else if (mounted) {
+          setState(() {
+            _userEmail = user.email ?? '';
+          });
+        }
+      } catch (e) {
+        print('❌ Profil yüklenemedi: $e');
+        if (mounted) {
+          setState(() {
+            _userEmail = user.email ?? '';
+          });
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +85,18 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Ali Veli',
-              style: TextStyle(
+            Text(
+              _userName,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'ali.veli@example.com',
-              style: TextStyle(
+            Text(
+              _userEmail,
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.black54,
               ),
@@ -60,18 +107,42 @@ class ProfileScreen extends StatelessWidget {
               Icons.person_outline,
               'Hesap Ayarları',
               '',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AccountSettingsScreen(),
+                  ),
+                );
+              },
             ),
             _buildMenuItem(
               context,
               Icons.settings_outlined,
               'Uygulama Ayarları',
               '',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AppSettingsScreen(),
+                  ),
+                );
+              },
             ),
             _buildMenuItem(
               context,
               Icons.history,
               'Teşhis Geçmişim',
               '',
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Teşhis geçmişi yakında eklenecek!'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             _buildMenuItem(
@@ -79,12 +150,28 @@ class ProfileScreen extends StatelessWidget {
               Icons.help_outline,
               'Yardım & Destek',
               '',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HelpSupportScreen(),
+                  ),
+                );
+              },
             ),
             _buildMenuItem(
               context,
               Icons.info_outline,
               'Hakkında',
               '',
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AboutScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 24),
             Padding(
@@ -118,12 +205,34 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   onTap: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Çıkış Yap'),
+                        content: const Text('Çıkış yapmak istediğinize emin misiniz?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('İptal'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                            child: const Text(
+                              'Çıkış Yap',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
                       ),
-                      (route) => false,
                     );
                   },
                 ),
@@ -141,6 +250,7 @@ class ProfileScreen extends StatelessWidget {
     IconData icon,
     String title,
     String subtitle,
+    VoidCallback onTap,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -188,7 +298,7 @@ class ProfileScreen extends StatelessWidget {
           size: 16,
           color: Colors.black38,
         ),
-        onTap: () {},
+        onTap: onTap,
       ),
     );
   }
