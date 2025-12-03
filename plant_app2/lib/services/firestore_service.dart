@@ -29,8 +29,10 @@ class FirestoreService {
   // Kullanıcı profilini getir
   Future<UserModel?> getUserProfile(String uid) async {
     try {
-      DocumentSnapshot doc =
-          await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get();
 
       if (doc.exists) {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>, uid);

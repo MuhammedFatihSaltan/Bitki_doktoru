@@ -1,11 +1,14 @@
 import 'dart:ui';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'camera_screen.dart';
 import 'diseases_screen.dart';
 import 'profile_screen.dart';
+import 'article_detail_screen.dart';
 import '../services/firestore_service.dart';
+import '../services/supabase_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -204,12 +207,29 @@ class MainHomeScreen extends StatefulWidget {
 
 class _MainHomeScreenState extends State<MainHomeScreen> {
   final _firestoreService = FirestoreService();
+  final _supabaseService = SupabaseService();
   String _userName = 'Kullanıcı';
+  List<Map<String, dynamic>> articles = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserName();
+    _loadArticles();
+  }
+
+  Future<void> _loadArticles() async {
+    final allArticles = await _supabaseService.getArticles(limit: 10);
+    if (mounted) {
+      // Günlük seed ile rastgele 2 makale seç
+      final today = DateTime.now();
+      final seed = today.year * 10000 + today.month * 100 + today.day;
+      allArticles.shuffle(Random(seed));
+
+      setState(() {
+        articles = allArticles.take(2).toList();
+      });
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -280,11 +300,43 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 ],
               ),
               const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CameraScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.camera_alt, size: 24),
+                label: const Text(
+                  'Hızlı Teşhis',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00C853),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 65),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+              const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -293,66 +345,65 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Bitki Teşhisi',
+                            'Yapay Zeka Asistanı',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           const Text(
-                            'Bitkinin fotoğrafını çekin veya yükleyin',
+                            'Sorularınızı anında yanıtlayın.',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.black54,
                             ),
                           ),
                           const SizedBox(height: 14),
-                          ElevatedButton.icon(
+                          ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const CameraScreen(),
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('AI Asistan yakında!'),
+                                  backgroundColor: Color(0xFF00C853),
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.camera_alt, size: 18),
-                            label: const Text(
-                              'Fotoğraf Çek',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00C853),
-                              foregroundColor: Colors.white,
+                              backgroundColor: const Color(0xFFF5F5F5),
+                              foregroundColor: Colors.black87,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
+                                horizontal: 20,
+                                vertical: 10,
                               ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               elevation: 0,
                             ),
+                            child: const Text(
+                              'Sohbete Başla',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: const Color(0xFFE3F2FD),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
-                        Icons.eco,
-                        size: 50,
+                        Icons.smart_toy_outlined,
+                        size: 60,
                         color: Color(0xFF00C853),
                       ),
                     ),
@@ -360,79 +411,34 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Son Teşhislerim',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                height: 180,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      width: 160,
-                      margin: const EdgeInsets.only(right: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Son Teşhisleriniz',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'Tümünü Gör',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF00C853),
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
-                              ),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.local_florist,
-                                size: 50,
-                                color: Colors.black26,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Domates Yaprak Küfü',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${10 + index} Ağustos 2024',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 12),
+              _buildDiagnosisItem('Domates - Yaprak Küfü', '2 gün önce', ''),
+              const SizedBox(height: 12),
+              _buildDiagnosisItem('Gül - Kara Leke', '5 gün önce', ''),
               const SizedBox(height: 24),
               const Text(
                 'Faydalı Bilgiler',
@@ -443,17 +449,40 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              _buildInfoCard(
-                'Bitki İçeriği',
-                'Gül Yapraklarında Beyaz Müdadele Edilir?',
-                Icons.eco,
-              ),
-              const SizedBox(height: 12),
-              _buildInfoCard(
-                'Önerilen Tedbirler',
-                'Domateslerda Kök Çürüklüğünü Önlemenin 5 Yolu',
-                Icons.lightbulb_outline,
-              ),
+              ...articles.map((article) {
+                String displayCategory = article['category'] ?? 'Genel';
+                if (displayCategory == 'Bitki İçeriği') {
+                  displayCategory = 'Bakım İpuçları';
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildInfoCard(
+                    displayCategory,
+                    article['title'] ?? '',
+                    _getIconData(article['icon'] ?? 'eco'),
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArticleDetailScreen(
+                            title: article['title'] ?? '',
+                            category: displayCategory,
+                            content: article['content'] ?? '',
+                            icon: article['icon'] ?? 'eco',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
+              if (articles.isEmpty)
+                _buildInfoCard(
+                  'Bitki Bakımı',
+                  'Makaleler yükleniyor...',
+                  Icons.eco,
+                  () {},
+                ),
             ],
           ),
         ),
@@ -461,52 +490,167 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     );
   }
 
-  Widget _buildInfoCard(String category, String title, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(12),
+  IconData _getIconData(String iconName) {
+    switch (iconName) {
+      case 'lightbulb_outline':
+        return Icons.lightbulb_outline;
+      case 'content_cut':
+        return Icons.content_cut;
+      case 'compost':
+        return Icons.recycling;
+      case 'bug_report':
+        return Icons.bug_report;
+      case 'home':
+        return Icons.home_outlined;
+      case 'medical_services':
+        return Icons.medical_services;
+      case 'water_drop':
+        return Icons.water_drop;
+      case 'park':
+        return Icons.park;
+      case 'verified':
+        return Icons.verified;
+      default:
+        return Icons.eco;
+    }
+  }
+
+  Widget _buildInfoCard(
+    String category,
+    String title,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: const Color(0xFF00C853), size: 28),
             ),
-            child: Icon(icon, color: const Color(0xFF00C853), size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF00C853),
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF00C853),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black38),
-        ],
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.black38,
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+Widget _buildDiagnosisItem(String title, String date, String imageUrl) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: imageUrl.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.local_florist,
+                        size: 30,
+                        color: Colors.black26,
+                      );
+                    },
+                  ),
+                )
+              : const Icon(
+                  Icons.local_florist,
+                  size: 30,
+                  color: Colors.black26,
+                ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                date,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF00C853),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black38),
+      ],
+    ),
+  );
 }

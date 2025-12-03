@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'loading_screen.dart';
@@ -45,128 +46,149 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(
+              'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764757203/kamera_ekran%C4%B1_arkaplan2_mneyzi.avif',
+            ),
+            fit: BoxFit.cover,
+            opacity: 0.9,
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Bitki Teşhisi',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black87,
+                    size: 28,
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Bitkinin fotoğrafını çekin veya yükleyin',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.eco,
-                      size: 100,
-                      color: Color(0xFF00C853),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _pickImage(ImageSource.camera),
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text(
-                        'Fotoğraf Çek',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00C853),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Bitkinin fotoğrafını çekin veya yükleyin',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'En doğru sonuçlar için bitkinizin hastalıklı bölümünü net ve iyi aydınlatılmış bir şekilde fotoğraflayın.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-                height: 1.6,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _pickImage(ImageSource.gallery),
-                icon: const Icon(Icons.photo_library),
-                label: const Text(
-                  'Galeriden Seç',
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Bitkinizi teşhis\netmeye hazır\nmısınız?',
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    height: 1.3,
                   ),
                 ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00C853),
-                  side: const BorderSide(color: Color(0xFF00C853), width: 2),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const Spacer(),
+                Center(
+                  child: Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF00C853,
+                              ).withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: ElevatedButton.icon(
+                              onPressed: () => _pickImage(ImageSource.camera),
+                              icon: const Icon(Icons.camera_alt, size: 24),
+                              label: const Text(
+                                'Kamerayı Aç',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 60),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton.icon(
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        icon: const Icon(
+                          Icons.photo_library_outlined,
+                          size: 20,
+                          color: Colors.black87,
+                        ),
+                        label: const Text(
+                          'Galeriden Yükle',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ExpansionTile(
+                        title: const Text(
+                          'Neden Doğru Fotoğraf Önemli?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: EdgeInsets.zero,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(top: 4, bottom: 4),
+                            child: Text(
+                              'Net, iyi aydınlatılmış ve odaklanmış fotoğraflar, yapay zekanın en doğru teşhisi koymasına yardımcı olur.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
