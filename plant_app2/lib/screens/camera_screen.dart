@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'loading_screen.dart';
@@ -29,25 +30,13 @@ class _CameraScreenState extends State<CameraScreen> {
             builder: (context) => LoadingScreen(imagePath: image.path),
           ),
         );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Resim seçilmedi'),
-            backgroundColor: Colors.orange,
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Kamera açılamadı. Lütfen izinleri kontrol edin.'),
             backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Tamam',
-              textColor: Colors.white,
-              onPressed: () {},
-            ),
           ),
         );
       }
@@ -57,82 +46,150 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              color: Colors.black87,
-              child: const Center(
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 100,
-                  color: Colors.white24,
-                ),
-              ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(
+              'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764757203/kamera_ekran%C4%B1_arkaplan2_mneyzi.avif',
             ),
+            fit: BoxFit.cover,
+            opacity: 0.9,
           ),
-          SafeArea(
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Text(
-                        'Kamera',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
+                IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black87,
+                    size: 28,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Bitkinizi teşhis\netmeye hazır\nmısınız?',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    height: 1.3,
                   ),
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Center(
+                  child: Column(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.photo_library, size: 32),
-                        color: Colors.white,
-                        onPressed: () => _pickImage(ImageSource.gallery),
-                      ),
-                      GestureDetector(
-                        onTap: () => _pickImage(ImageSource.camera),
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 4),
-                          ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                           child: Container(
-                            margin: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF00C853,
+                              ).withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: ElevatedButton.icon(
+                              onPressed: () => _pickImage(ImageSource.camera),
+                              icon: const Icon(Icons.camera_alt, size: 24),
+                              label: const Text(
+                                'Kamerayı Aç',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 60),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 32),
+                      const SizedBox(height: 16),
+                      TextButton.icon(
+                        onPressed: () => _pickImage(ImageSource.gallery),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                        icon: const Icon(
+                          Icons.photo_library_outlined,
+                          size: 20,
+                          color: Colors.black87,
+                        ),
+                        label: const Text(
+                          'Galeriden Yükle',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ExpansionTile(
+                        title: const Text(
+                          'Neden Doğru Fotoğraf Önemli?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: EdgeInsets.zero,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(top: 4, bottom: 4),
+                            child: Text(
+                              'Net, iyi aydınlatılmış ve odaklanmış fotoğraflar, yapay zekanın en doğru teşhisi koymasına yardımcı olur.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

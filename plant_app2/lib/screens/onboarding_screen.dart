@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 
@@ -14,25 +15,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingData> _pages = [
     OnboardingData(
-      title: 'Bitkilerinize Doktor\nOlun',
+      title: 'Hoş Geldiniz',
       description:
-          'Bir fotoğraf çekin, yapay zeka ile hastalığı anında tespit edelim ve tedavi önerileri alalım.',
-      image: Icons.camera_alt,
-      backgroundColor: Colors.white,
+          'Bitkileri tarayın, sorunları tespit edin\nve anında bakım ipuçları alın.',
+      image:
+          'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764860024/onboarding1_altarnatif_km02cf.jpg',
+      backgroundColor: const Color(0xFFE8EDE8),
     ),
     OnboardingData(
       title: 'Her Şey Hazır!',
       description:
           'Uygulamayı kullanmaya başlamak için kaydolun veya giriş yapın.',
-      image: Icons.eco,
-      backgroundColor: Colors.white,
+      image:
+          'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764889316/ac%C4%B1k_reng_onboarding_taslak3_xttffp.jpg',
+      backgroundColor: const Color(0xFFE8EDE8),
     ),
     OnboardingData(
       title: 'Anında Hastalık Teşhisi',
       description:
           'Bitkinizin fotoğrafını çekin, yapay zeka destekli sistemimiz sağlıklar içinde hastalığı tanımlasın.',
-      image: Icons.local_florist,
-      backgroundColor: Colors.white,
+      image:
+          'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764888888/onboarding_taslak2_vstbnj.avif',
+      backgroundColor: const Color(0xFFE8EDE8),
     ),
   ];
 
@@ -45,189 +49,222 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _pages[_currentPage].backgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Atla',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      _pages.length,
-                      (index) => _buildDot(index),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  if (_currentPage == _pages.length - 1)
-                    Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00C853),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 80,
-                              vertical: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text(
-                            'Devam Et',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_currentPage < _pages.length - 1) {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00C853),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          _currentPage == 0 ? 'Hadi Başlayalım' : 'Başlayın',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPage(OnboardingData data) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
         children: [
-          Container(
-            width: 280,
-            height: 280,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Center(
-              child: Icon(
-                data.image,
-                size: 120,
-                color: const Color(0xFF00C853),
-              ),
-            ),
+          // Arka plan - PageView
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: _pages.length,
+            itemBuilder: (context, index) {
+              return _buildPage(_pages[index]);
+            },
           ),
-          const SizedBox(height: 48),
-          Text(
-            data.title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          // Alt kısım - Butonlar (resmin üzerinde)
+          Positioned(
+            left: 24,
+            right: 24,
+            bottom: 60,
+            child: Column(
+              children: [
+                // Devam Et butonu (transparan ve blurlu)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(30),
+                          onTap: () {
+                            if (_currentPage < _pages.length - 1) {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginScreen(),
+                                ),
+                              );
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Text(
+                              'Devam Et',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                // Indicator noktaları
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pages.length,
+                    (index) => _buildDot(index),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Kullanım şartları metni
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Devam ederek ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        height: 1.4,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        // Kullanım Şartları sayfası
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Kullanım Şartları'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Kullanım Şartları',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          height: 1.4,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      ' ve ',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        height: 1.4,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        // Gizlilik Politikası sayfası
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('\nGizlilik Politikası'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Gizlilik Politikası',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          height: 1.4,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '\'nı kabul etmiş olursunuz',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            data.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
 
+  Widget _buildPage(OnboardingData data) {
+    return Stack(
+      children: [
+        // Arka plan resmi
+        Positioned.fill(child: Image.network(data.image, fit: BoxFit.cover)),
+        // Hafif transparan overlay
+        Positioned.fill(
+          child: Container(color: Colors.black.withValues(alpha: 0.25)),
+        ),
+        // Yazılar altta
+        Positioned(
+          bottom: 240,
+          left: 32,
+          right: 32,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                data.title,
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                data.description,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white.withValues(alpha: 0.9),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDot(int index) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: _currentPage == index ? 24 : 8,
+      width: _currentPage == index ? 32 : 8,
       height: 8,
       decoration: BoxDecoration(
         color: _currentPage == index
-            ? const Color(0xFF00C853)
-            : Colors.black26,
+            ? Colors.white
+            : Colors.white.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(4),
       ),
     );
@@ -237,7 +274,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingData {
   final String title;
   final String description;
-  final IconData image;
+  final String image;
   final Color backgroundColor;
 
   OnboardingData({
