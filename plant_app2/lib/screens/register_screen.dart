@@ -15,9 +15,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   final _authService = AuthService();
   final _firestoreService = FirestoreService();
   bool _obscurePassword = true;
+
+  final _confirmPasswordController = TextEditingController();
+  final _authService = AuthService();
+  final _firestoreService = FirestoreService();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   bool _isLoading = false;
 
   @override
@@ -31,10 +39,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _signUp() async {
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
+
         _passwordController.text.isEmpty) {
+
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty {
+
       _showError('Lütfen tüm alanları doldurun');
       return;
     }
+
+
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showError('Şifreler eşleşmiyor');
+      return;
+    }
+
 
     if (_passwordController.text.length < 6) {
       _showError('Şifre en az 6 karakter olmalı');
@@ -45,6 +66,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       print('📝 Kayıt işlemi başlıyor...');
+
+
 
       // Firebase Auth'a kayıt ol
       final userCredential = await _authService.signUpWithEmail(
@@ -97,7 +120,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),=======
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+
     );
   }
 
@@ -115,6 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 fit: BoxFit.cover,
               ),
+
             ),
           ),
           // Blur efekti
@@ -128,6 +157,181 @@ class _RegisterScreenState extends State<RegisterScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+
+              const SizedBox(height: 30),
+              const Text(
+                'Bitki Doktoru',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Bitkilerinizin sağlığı için yeni bir hesap oluşturun.',
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
+              const Text(
+                'Kullanıcı Adı',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _nameController,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  hintText: 'Kullanıcı adınızı girin',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'E-posta',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'ornek@eposta.com',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Şifre',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _passwordController,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  hintText: 'Şifrenizi girin',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.black38,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Şifre Tekrarı',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: _obscureConfirmPassword,
+                decoration: InputDecoration(
+                  hintText: 'Şifrenizi tekrar girin',
+                  hintStyle: const TextStyle(color: Colors.black26),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.black38,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _signUp,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00C853),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Kaydol',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 60),
                   // Logo

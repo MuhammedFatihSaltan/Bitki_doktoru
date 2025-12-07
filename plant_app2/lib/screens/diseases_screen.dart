@@ -96,6 +96,7 @@ class _DiseasesScreenState extends State<DiseasesScreen> {
                         image: DecorationImage(
                           image: NetworkImage(
                             'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764890242/bitki_hastal%C4%B1k_ekran_taslak_ljmyiu.avif',
+                            'https://res.cloudinary.com/ds3qhhh21/image/upload/v1764762492/bitki_hastalik_ekrani_resim_bwejld.avif',
                           ),
                           fit: BoxFit.cover,
                         ),

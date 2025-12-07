@@ -265,6 +265,32 @@ packages:
     source: sdk
     version: "0.0.0"
   functions_client:
+
+    dependency: transitive
+    description:
+      name: functions_client
+      sha256: "94074d62167ae634127ef6095f536835063a7dc80f2b1aa306d2346ff9023996"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
+  gotrue:
+    dependency: transitive
+    description:
+      name: gotrue
+      sha256: "636b7d8de00c96cb580c705f9eb12bc107df893595854f1efa08c6b1b449e5e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.16.0"
+  gtk:
+    dependency: transitive
+    description:
+      name: gtk
+      sha256: e8ce9ca4b1df106e4d72dad201d345ea1a036cc12c360f1a7d5a758f78ffa42c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  http:
+
     dependency: transitive
     description:
       name: functions_client
